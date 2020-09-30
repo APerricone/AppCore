@@ -164,21 +164,23 @@ WindowWin::WindowWin(Monitor* monitor, uint32_t width, uint32_t height,
   HINSTANCE hInstance = GetModuleHandle(NULL);
 
   WNDCLASSEX wcex;
-  wcex.cbSize = sizeof(WNDCLASSEX);
-  wcex.style = CS_HREDRAW | CS_VREDRAW;
-  wcex.lpfnWndProc = WndProc;
-  wcex.cbClsExtra = 0;
-  wcex.cbWndExtra = 0;
-  wcex.hInstance = hInstance;
-  wcex.hIcon = LoadIcon(hInstance, (LPCTSTR)IDI_APPLICATION);
-  wcex.hCursor = NULL;
-  wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-  wcex.lpszMenuName = NULL;
-  wcex.lpszClassName = class_name;
-  wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_APPLICATION);
-  if (!RegisterClassEx(&wcex)) {
-    MessageBoxW(NULL, (LPCWSTR)L"RegisterClassEx failed", (LPCWSTR)L"Notification", MB_OK);
-    exit(-1);
+  if (!GetClassInfoEx(hInstance,class_name,&wcex)) {
+    wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIcon(hInstance, (LPCTSTR)IDI_APPLICATION);
+    wcex.hCursor = NULL;
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = NULL;
+    wcex.lpszClassName = class_name;
+    wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_APPLICATION);
+    if (!RegisterClassEx(&wcex)) {
+      MessageBoxW(NULL, (LPCWSTR)L"RegisterClassEx failed", (LPCWSTR)L"Notification", MB_OK);
+      exit(-1);
+    }
   }
 
   DWORD style = WS_SYSMENU;
@@ -307,7 +309,7 @@ void WindowWin::DrawBitmap(int x, int y, Ref<Bitmap> bitmap, IntRect rect) {
   rect = { 0, 0, (int)bitmap->width(), (int)bitmap->height() };
 
   LONG adjustedSourceTop = bitmap->height() - rect.bottom;
-  StretchDIBits(hdc, x + rect.left, y + rect.top, rect.width(), rect.height(), 
+  StretchDIBits(hdc, x + rect.left, y + rect.top, rect.width(), rect.height(),
     rect.left, adjustedSourceTop, rect.width(), rect.height(), bits, &bmi, DIB_RGB_COLORS, SRCCOPY);
 
   bitmap->UnlockPixels();
